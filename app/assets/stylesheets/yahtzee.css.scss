@@ -1,0 +1,20 @@
+
+.die {
+  display: inline-block;
+  border: 3px black solid;
+  padding: 30px 30px;
+  margin: 0 20px 0 0;
+  box-sizing: border-box;
+
+  &.highlighted {
+    border: 3px green dashed;
+  }
+}
+
+.dice {
+  border: 1px black solid;
+  padding: 10px;
+  width: auto;
+  display: inline-block;
+  margin-bottom: 20px;
+}

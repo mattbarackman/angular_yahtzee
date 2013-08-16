@@ -1,0 +1,15 @@
+<h1>Yahtzee</h1>
+<div ng-controller="YahtzeeCtrl">
+  <h2> Dice </h2>
+  <p> Click on die to highlight it. Selected dice will not be rolled.</p>
+  <div class="dice">
+    <div ng-repeat="die in dice" ng-click="toggleHighlight(die)" ng-class="{highlighted: die.highlighted}" class="die">{{die.value}}</div>
+  </div>
+
+  <div>
+    <button ng-click="addDie()">Add Die</button>
+    <button ng-click="rollDice()">Roll Dice</button>
+  </div>
+</div>
+
+
