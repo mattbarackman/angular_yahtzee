@@ -34,6 +34,12 @@ class @Board
       yahtzee: null
       chance: null
 
+    @scores =
+      upperScore: null
+      upperBonus: null
+      lowerScore: null
+      total: null
+
   updateCategory: (category, dice) ->
     if @categories[category] == null 
       @categories[category] = @scoreDice(category, dice.map (x) -> x.value)
@@ -132,6 +138,25 @@ class @Board
   showBoard: ->
     console.log(@categories)
   
+  calculateScores: ->
+
+    upperCategories= ['ones', 'twos', 'threes', 'fours', 'fives', 'sixes']
+    lowerCategories = ['threeOfAKind','fourOfAKind', 'fullHouse', 'smallStraight', 'largeStraight', 'yahtzee', 'chance']
+
+    @scores.upperScore = 0
+
+    for category in upperCategories
+     @scores.upperScore += categories[category]
+
+    @scores.upperBonus = if @scores.upperScore >= 63 then 35 else 0
+
+    @scores.lowerScore = 0
+
+    for category in lowerCategories
+     @scores.lowerScore += categories[category]
+
+    @scores.total = @scores.upperScore + @scores.upperBonus + @scores.lowerScore
+
 
 class @Player
   constructor: (@name) ->
@@ -170,6 +195,10 @@ class @Player
   showBoard: ->
     @board.showBoard()
 
+  calculateScores: ->
+    @board.calculateScores()
+
+
 
 class @Die
   constructor: () ->
@@ -196,8 +225,11 @@ class @GameController
     players
 
   run: ->
-     until @winner
+     roundCounter = 0
+     until roundCounter == 13
       for player in @players
+        console.log(player.name)
+        player.showBoard()
         player.deselectAllDice()
         player.rollDice()
         player.selectDice()
@@ -206,10 +238,29 @@ class @GameController
         player.rollDice()
         player.selectAndUpdateCategory()
         player.showBoard()
+      roundCounter++
+    @calculateScores
+    @alertWinner
 
-# gc = new GameController(2)
-# gc.run()
-# debugger
+  calculateScores: ->
+    for player in @players
+      player.calculateScores()
+      player.showBoard()
+
+  alertWinner: ->
+    max = 0
+    for player, score of @players
+     max = if score > max then score else max
+
+    winners = []
+    for player, score of categories
+     if score == max then winners.push(player)
+
+    alert(winners)
+
+gc = new GameController(2)
+gc.run()
+
 
 # score
 
