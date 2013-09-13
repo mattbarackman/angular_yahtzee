@@ -1,13 +1,44 @@
 <h1>Yahtzee</h1>
 <div ng-controller="YahtzeeCtrl">
-  <h2> Dice </h2>
-  <p> Click on die to highlight it. Selected dice will not be rolled.</p>
-  <div class="dice">
-    <div ng-repeat="die in dice" ng-click="toggleHighlight(die)" ng-class="{highlighted: die.highlighted}" class="die">{{die.value}}</div>
-  </div>
+  
+  <form ng-submit="initGame()">
+    <label for="playerCount">How many players are there?</label>
+    <input type="text" id="playerCount" ng-model="playerCount">
+    <input type="submit" value="start game">
+  </form>
+  
+  <div ng-show="game.currentPlayer()">
+    <h2> {{game.currentPlayer().name + ": Choose Your Dice"}} </h2>
+    <h4> {{'Roll Count: ' + game.currentPlayer().rollCount}} </h4>
+    <div class="dice">
+      <div ng-repeat="die in game.currentPlayer().dice" ng-click="die.toggleHighlight()" ng-class="{highlighted: die.highlighted}" class="die">{{die.value}}</div>
+    </div>
 
-  <div>
-    <button ng-click="rollDice()">Roll Dice</button>
+    <div ng-show="game.currentPlayer().rollCount < 2">
+      <button ng-click="game.currentPlayer().rollDice()">Roll Dice</button>
+    </div>
+
+    <div ng-show="game.currentPlayer().rollCount == 2">
+      <button ng-click="finishTurn()">Select Category</button>
+    </div>
+  
+    <table>
+      <tr>
+        <th>
+          Categories
+        </th>
+        <th ng-repeat="player in game.players">
+          {{player.name}}
+        </th>
+      </tr>
+      <tr ng-repeat="(key, value) in game.players[0].board.categories">
+        <td> {{key}} </td>
+        <td ng-repeat="player in game.players">
+          {{player.board.categories[key]}}
+        <td>
+
+      </tr>
+    </table>
   </div>
 </div>
 

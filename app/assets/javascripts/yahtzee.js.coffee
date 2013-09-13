@@ -1,21 +1,17 @@
 @YahtzeeCtrl = ($scope) -> 
-  $scope.dice = [
-    new Die
-    new Die
-    new Die
-    new Die
-    new Die
-  ]
 
-  $scope.addDie = ->
-    $scope.dice.push(new Die) 
+  $scope.playerCount = null
 
-  $scope.rollDice = ->
-    for die in $scope.dice
-      die.roll() unless die.highlighted
+  $scope.game = null
 
-  $scope.toggleHighlight = (die) ->
-    die.toggleHighlight()
+  $scope.initGame = ->
+    $scope.game = new GameController($scope.playerCount)
+
+  $scope.finishTurn = ->
+    $scope.game.currentPlayer().selectAndUpdateCategory()
+    $scope.game.currentPlayer().resetDice()
+    $scope.game.nextPlayer()
+
 
 class @Board
   constructor: ->
@@ -159,26 +155,24 @@ class @Board
 
 
 class @Player
-  constructor: (@name) ->
+  constructor: (@name, $scope) ->
     @board = (new Board)
     @dice = [new Die, new Die, new Die, new Die, new Die]
-  
+    @resetDice()
+
   updateCategory: (category, score) ->
     @board.updateCategory category, score
 
-  deselectAllDice: ->
+  resetDice: ->
     for die in @dice
       die.highlighted = false
+    @rollDice()
+    @rollCount = 0
 
   rollDice: ->
     for die in @dice
       die.roll() unless die.highlighted
-    @showDice()
-
-  showDice: ->
-    console.log("")
-    for die in @dice
-      console.log(die)
+    @rollCount++
 
   selectDice: ->
     selected_dice = prompt("Which dice do you want to save?").split("")
@@ -216,6 +210,8 @@ class @GameController
   constructor: (player_count) ->
     @players = @setPlayerNames(player_count)
     @winner = false
+    @currentPlayerIndex = 0
+    @turnCount = 0
 
   setPlayerNames: (player_count) ->
     players = []
@@ -224,28 +220,23 @@ class @GameController
       players[i-1] = new Player name
     players
 
-  run: ->
-     roundCounter = 0
-     until roundCounter == 13
-      for player in @players
-        console.log(player.name)
-        player.showBoard()
-        player.deselectAllDice()
-        player.rollDice()
-        player.selectDice()
-        player.rollDice()
-        player.selectDice()
-        player.rollDice()
-        player.selectAndUpdateCategory()
-        player.showBoard()
-      roundCounter++
-    @calculateScores
-    @alertWinner
-
   calculateScores: ->
     for player in @players
       player.calculateScores()
       player.showBoard()
+
+  nextPlayer: ->
+    if @currentPlayerIndex < (@players.length - 1)
+      @currentPlayerIndex++
+    else if @turnCount == 13
+        @calculateScores()
+        @alertWinner()
+    else 
+      @currentPlayerIndex = 0
+      @turnCount++
+
+  currentPlayer: ->
+    @players[@currentPlayerIndex]
 
   alertWinner: ->
     max = 0
@@ -257,16 +248,3 @@ class @GameController
      if score == max then winners.push(player)
 
     alert(winners)
-
-gc = new GameController(2)
-gc.run()
-
-
-# score
-
-
-# setup game:
-#   - get player count
-#   - for each player create a player with a scorecard and a name. assign to players in game controller. 
-#      - for each player assign them a score card with null values for each category
-
